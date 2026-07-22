@@ -133,6 +133,9 @@ export default async function Home({ searchParams }: Props) {
               <h2 className="text-lg font-semibold text-(--saffron-deep)">Supplies for {selectedDate || "latest available date"}</h2>
               <p className="text-sm text-(--ink-3) break-all md:text-right">Total units: {totalSupplies.toLocaleString()}</p>
             </div>
+            <p className="mt-2 text-xs leading-relaxed text-(--ink-3)">
+              These are not exact numbers. This is crowd-sourced data and is intended only to give an overall idea of support levels.
+            </p>
 
             <ul className="mt-4 divide-y divide-(--paper-3) rounded-lg border border-(--paper-3) bg-(--paper)">
               {normalizedSupplies.map((item) => (
