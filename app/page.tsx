@@ -129,17 +129,6 @@ export default async function Home({ searchParams }: Props) {
           <SuppliesSubmitForm />
 
           <section className="rounded-xl border border-(--paper-3) bg-(--paper-2) p-4">
-            <h2 className="text-base font-semibold text-(--saffron-deep)">What counts as 1 Unit?</h2>
-            <ul className="mt-2 space-y-2 text-sm leading-relaxed text-(--ink-2)">
-              <li><strong>Water:</strong> 1 unit = enough safe drinking water for 1 average person for 5 hours (about 1-1.5 liters).</li>
-              <li><strong>Food:</strong> 1 unit = 1 ready-to-eat packaged portion for 1 person with shelf life over 24 hours (for example: 1 biscuit packet, 1 packaged lassi, 1 packaged milk pack, or 1 chips packet).</li>
-              <li><strong>Prepared Food:</strong> 1 unit = 1 ready-to-eat meal portion for 1 person with a shelf life of less than 24 hours (for example: 1 fresh meal box or 1 pizza).</li>
-              <li><strong>Medical:</strong> 1 unit = 1 complete basic treatment use for 1 person (for example: 1 first-aid kit use, 1 ORS packet, or one full dressing set).</li>
-              <li><strong>Other:</strong> 1 unit = 1 clearly countable essential item; if bulk, count how many individual people-use portions it can be split into.</li>
-            </ul>
-          </section>
-
-          <section className="rounded-xl border border-(--paper-3) bg-(--paper-2) p-4">
             <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
               <h2 className="text-lg font-semibold text-(--saffron-deep)">Supplies for {selectedDate || "latest available date"}</h2>
               <p className="text-sm text-(--ink-3)">Total units: {totalSupplies.toLocaleString()}</p>
@@ -154,6 +143,18 @@ export default async function Home({ searchParams }: Props) {
               ))}
             </ul>
           </section>
+
+          <section className="rounded-xl border border-(--paper-3) bg-(--paper-2) p-4">
+            <h2 className="text-base font-semibold text-(--saffron-deep)">What counts as 1 Unit?</h2>
+            <ul className="mt-2 space-y-2 text-sm leading-relaxed text-(--ink-2)">
+              <li><strong>Water:</strong> 1 unit = enough safe drinking water for 1 average person for 5 hours (about 1-1.5 liters).</li>
+              <li><strong>Food:</strong> 1 unit = 1 ready-to-eat packaged portion for 1 person with shelf life over 24 hours (for example: 1 biscuit packet, 1 packaged lassi, 1 packaged milk pack, or 1 chips packet).</li>
+              <li><strong>Prepared Food:</strong> 1 unit = 1 ready-to-eat meal portion for 1 person with a shelf life of less than 24 hours (for example: 1 fresh meal box or 1 pizza).</li>
+              <li><strong>Medical:</strong> 1 unit = 1 complete basic treatment use for 1 person (for example: 1 first-aid kit use, 1 ORS packet, or one full dressing set).</li>
+              <li><strong>Other:</strong> 1 unit = 1 clearly countable essential item; if bulk, count how many individual people-use portions it can be split into.</li>
+            </ul>
+          </section>
+
         </div>
       </section>
     </main>
