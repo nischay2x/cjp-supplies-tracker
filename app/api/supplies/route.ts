@@ -19,6 +19,27 @@ const SUPPLY_ITEMS = new Set<SupplyItem>([
 const SUBMISSION_COOLDOWN_MS = 60 * 60 * 1000;
 const SUBMISSION_COOKIE_NAME = "supply_last_submitted_at";
 
+function getClientIp(request: NextRequest): string | undefined {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+
+  if (forwardedFor) {
+    const firstForwardedIp = forwardedFor.split(",")[0]?.trim();
+    if (firstForwardedIp) {
+      return firstForwardedIp;
+    }
+  }
+
+  const directIpHeaders = ["x-real-ip", "cf-connecting-ip", "true-client-ip"];
+  for (const headerName of directIpHeaders) {
+    const headerValue = request.headers.get(headerName)?.trim();
+    if (headerValue) {
+      return headerValue;
+    }
+  }
+
+  return undefined;
+}
+
 export async function POST(request: NextRequest) {
   const now = Date.now();
   const lastSubmittedAtRaw = request.cookies.get(SUBMISSION_COOKIE_NAME)?.value;
@@ -85,13 +106,25 @@ export async function POST(request: NextRequest) {
     payload.place = place;
   }
 
+  const clientIp = getClientIp(request);
+  const upstreamHeaders: Record<string, string> = {
+    "Content-Type": "application/json",
+    "x-api-key": apiKey,
+  };
+
+  const forwardedFor = request.headers.get("x-forwarded-for")?.trim();
+  if (forwardedFor) {
+    upstreamHeaders["x-forwarded-for"] = forwardedFor;
+  }
+
+  if (clientIp) {
+    upstreamHeaders["x-user-ip"] = clientIp;
+  }
+
   try {
     const upstreamResponse = await fetch(`${baseUrl}/supplies`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-      },
+      headers: upstreamHeaders,
       body: JSON.stringify(payload),
       cache: "no-store",
     });
