@@ -118,6 +118,14 @@ export default function SuppliesSubmitForm() {
       const result = (await response.json()) as { message?: string; error?: string };
 
       if (!response.ok) {
+        if (response.status === 429) {
+          setState({
+            type: "error",
+            message: result.error || "You have recently submitted. Please try again after some time.",
+          });
+          return;
+        }
+
         setState({
           type: "error",
           message: result.error || "Unable to submit supply.",
