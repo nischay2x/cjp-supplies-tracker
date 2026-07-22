@@ -245,7 +245,7 @@ export default function SuppliesSubmitForm() {
                   type="text"
                   value={place}
                   onChange={(event) => setPlace(event.target.value)}
-                  placeholder="Bilaspur"
+                  placeholder="Mumbai, India"
                   className="rounded-xl border border-(--paper-3) bg-(--paper) px-3 py-2.5 text-(--ink) outline-none ring-(--saffron-2) transition focus:ring"
                 />
               </div>
