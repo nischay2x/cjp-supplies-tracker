@@ -16,7 +16,7 @@ const SUPPLY_ITEMS = new Set<SupplyItem>([
   "other",
 ]);
 
-const SUBMISSION_COOLDOWN_MS = 60 * 60 * 1000;
+const SUBMISSION_COOLDOWN_MS = 80 * 1000;
 const SUBMISSION_COOKIE_NAME = "supply_last_submitted_at";
 
 function getClientIp(request: NextRequest): string | undefined {
@@ -51,20 +51,11 @@ export async function POST(request: NextRequest) {
       const elapsedMs = now - lastSubmittedAt;
 
       if (elapsedMs < SUBMISSION_COOLDOWN_MS) {
-        const remainingMs = SUBMISSION_COOLDOWN_MS - elapsedMs;
-        const retryAfterSeconds = Math.ceil(remainingMs / 1000);
-        const remainingMinutes = Math.ceil(remainingMs / (60 * 1000));
-
         return NextResponse.json(
           {
-            error: `You can submit again in ${remainingMinutes} minute${remainingMinutes === 1 ? "" : "s"}.`,
+            error: "You have recently submitted. Please try again after some time.",
           },
-          {
-            status: 429,
-            headers: {
-              "Retry-After": String(retryAfterSeconds),
-            },
-          },
+          { status: 429 },
         );
       }
     }
@@ -140,12 +131,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const parsedData = data as { error?: string };
+    const parsedData = data as { error?: string; reason?: string };
 
     if (!upstreamResponse.ok) {
+      const upstreamReason = typeof parsedData.reason === "string" ? parsedData.reason : undefined;
       return NextResponse.json(
         {
-          error: parsedData.error || "Upstream API rejected the request.",
+          error:
+            upstreamResponse.status === 403 && upstreamReason
+              ? upstreamReason
+              : parsedData.error || "Upstream API rejected the request.",
         },
         { status: upstreamResponse.status },
       );
