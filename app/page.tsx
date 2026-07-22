@@ -131,14 +131,14 @@ export default async function Home({ searchParams }: Props) {
           <section className="rounded-xl border border-(--paper-3) bg-(--paper-2) p-4">
             <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
               <h2 className="text-lg font-semibold text-(--saffron-deep)">Supplies for {selectedDate || "latest available date"}</h2>
-              <p className="text-sm text-(--ink-3)">Total units: {totalSupplies.toLocaleString()}</p>
+              <p className="text-sm text-(--ink-3) break-all md:text-right">Total units: {totalSupplies.toLocaleString()}</p>
             </div>
 
             <ul className="mt-4 divide-y divide-(--paper-3) rounded-lg border border-(--paper-3) bg-(--paper)">
               {normalizedSupplies.map((item) => (
-                <li key={item.key} className="flex items-center justify-between px-4 py-3">
+                <li key={item.key} className="flex items-start justify-between gap-3 px-4 py-3">
                   <span className="text-sm text-(--ink-2)">{SUPPLY_LABELS[item.key]}</span>
-                  <span className="text-base font-semibold text-(--green-2)">{item.value.toLocaleString()}</span>
+                  <span className="max-w-[60%] text-right text-base font-semibold text-(--green-2) break-all">{item.value.toLocaleString()}</span>
                 </li>
               ))}
             </ul>
