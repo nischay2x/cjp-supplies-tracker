@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 type SupplyItem = "water" | "food" | "prepared_food" | "medical" | "other";
 
@@ -16,7 +16,39 @@ const SUPPLY_ITEMS = new Set<SupplyItem>([
   "other",
 ]);
 
-export async function POST(request: Request) {
+const SUBMISSION_COOLDOWN_MS = 60 * 60 * 1000;
+const SUBMISSION_COOKIE_NAME = "supply_last_submitted_at";
+
+export async function POST(request: NextRequest) {
+  const now = Date.now();
+  const lastSubmittedAtRaw = request.cookies.get(SUBMISSION_COOKIE_NAME)?.value;
+
+  if (lastSubmittedAtRaw) {
+    const lastSubmittedAt = Number(lastSubmittedAtRaw);
+
+    if (Number.isFinite(lastSubmittedAt)) {
+      const elapsedMs = now - lastSubmittedAt;
+
+      if (elapsedMs < SUBMISSION_COOLDOWN_MS) {
+        const remainingMs = SUBMISSION_COOLDOWN_MS - elapsedMs;
+        const retryAfterSeconds = Math.ceil(remainingMs / 1000);
+        const remainingMinutes = Math.ceil(remainingMs / (60 * 1000));
+
+        return NextResponse.json(
+          {
+            error: `You can submit again in ${remainingMinutes} minute${remainingMinutes === 1 ? "" : "s"}.`,
+          },
+          {
+            status: 429,
+            headers: {
+              "Retry-After": String(retryAfterSeconds),
+            },
+          },
+        );
+      }
+    }
+  }
+
   let body: CreateSupplyBody;
 
   try {
@@ -33,8 +65,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid item value." }, { status: 400 });
   }
 
-  if (typeof units !== "number" || !Number.isFinite(units) || units <= 0) {
-    return NextResponse.json({ error: "Units must be a positive number." }, { status: 400 });
+  if (typeof units !== "number" || !Number.isFinite(units) || units < 1 || units > 1000) {
+    return NextResponse.json({ error: "Units must be between 1 and 1000." }, { status: 400 });
   }
 
   const baseUrl = process.env.API_BASE;
@@ -86,13 +118,25 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         message: "Supply submitted successfully.",
         data,
       },
       { status: 201 },
     );
+
+    response.cookies.set({
+      name: SUBMISSION_COOKIE_NAME,
+      value: String(now),
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: Math.floor(SUBMISSION_COOLDOWN_MS / 1000),
+    });
+
+    return response;
   } catch {
     return NextResponse.json(
       { error: "Unable to reach upstream API." },

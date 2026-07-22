@@ -68,7 +68,7 @@ export default function SuppliesSubmitForm() {
 
   const canSubmit = useMemo(() => {
     const numericUnits = Number(units);
-    return Number.isFinite(numericUnits) && numericUnits > 0;
+    return Number.isFinite(numericUnits) && numericUnits >= 1 && numericUnits <= 1000;
   }, [units]);
 
   useEffect(() => {
@@ -92,10 +92,10 @@ export default function SuppliesSubmitForm() {
 
     const numericUnits = Number(units);
 
-    if (!Number.isFinite(numericUnits) || numericUnits <= 0) {
+    if (!Number.isFinite(numericUnits) || numericUnits < 1 || numericUnits > 1000) {
       setState({
         type: "error",
-        message: "Units must be a positive number.",
+        message: "Units must be between 1 and 1000.",
       });
       return;
     }
@@ -220,6 +220,7 @@ export default function SuppliesSubmitForm() {
                   id="units"
                   type="number"
                   min="1"
+                  max="1000"
                   step="1"
                   value={units}
                   onChange={(event) => setUnits(event.target.value)}
